@@ -43,7 +43,6 @@
                             💡 Tip: Use the STAR method (Situation, Task, Action, Result)
                         </small>
                         <div class="d-flex gap-2">
-                            <!-- Skip button -->
                             <button type="button" class="btn btn-outline-secondary btn-sm"
                                     onclick="skipQuestion()">
                                 Skip →
@@ -65,4 +64,43 @@
                     </div>
                     <div class="col">
                         <small class="text-muted">Company</small>
-                        <p class="fw-bold mb-0">{{ session.company|default:"General" }}</
+                        <p class="fw-bold mb-0">{{ session.company|default:"General" }}</p>
+                    </div>
+                    <div class="col">
+                        <small class="text-muted">Mode</small>
+                        <p class="fw-bold mb-0">{{ session.get_mode_display }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 120
+        const timerEl = document.getElementById('timer')
+
+        const countdown = setInterval(() => {
+            timeLeft--
+            const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0')
+            const secs = String(timeLeft % 60).padStart(2, '0')
+            timerEl.textContent = `⏱️ ${mins}:${secs}`
+
+            if (timeLeft <= 30) {
+                timerEl.classList.add('text-danger')
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown)
+                timerEl.textContent = '⏱️ Time Up!'
+                document.getElementById('answerForm').submit()
+            }
+        }, 1000)
+
+        function skipQuestion() {
+            if (confirm('Are you sure you want to skip this question?')) {
+                document.getElementById('answerText').value = 'Skipped'
+                document.getElementById('answerForm').submit()
+            }
+        }
+    </script>
+{% endblock %}

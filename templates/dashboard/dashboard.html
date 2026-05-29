@@ -32,6 +32,14 @@
         </div>
     </div>
 
+    <!-- Score Chart -->
+    {% if chart_scores %}
+    <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-3">📈 Score Progress</h5>
+        <canvas id="scoreChart" height="100"></canvas>
+    </div>
+    {% endif %}
+
     <div class="row">
         <!-- Recent Sessions -->
         <div class="col-md-8">
@@ -126,4 +134,52 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        {% if chart_scores %}
+        const ctx = document.getElementById('scoreChart').getContext('2d')
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Interview Score',
+                    data: {{ chart_scores|safe }},
+                    borderColor: '#4e54c8',
+                    backgroundColor: 'rgba(78, 84, 200, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#4e54c8',
+                    pointRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 10,
+                        ticks: { stepSize: 1 },
+                        title: { display: true, text: 'Score (out of 10)' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `Score: ${context.raw}/10`
+                        }
+                    }
+                }
+            }
+        })
+        {% endif %}
+    </script>
+
 {% endblock %}

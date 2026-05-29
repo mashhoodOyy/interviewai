@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+from datetime import date, timedelta
 
 class User(AbstractUser):
     EXPERIENCE_CHOICES = (
@@ -21,3 +23,27 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def update_streak(self):
+        today = date.today()
+
+        if self.last_active is None:
+            # first time ever
+            self.streak_count = 1
+            self.last_active = today
+
+        elif self.last_active == today:
+            # already practiced today — no change
+            pass
+
+        elif self.last_active == today - timedelta(days=1):
+            # practiced yesterday — increment streak
+            self.streak_count += 1
+            self.last_active = today
+
+        else:
+            # missed a day — reset streak
+            self.streak_count = 1
+            self.last_active = today
+
+        self.save()

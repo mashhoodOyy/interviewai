@@ -75,10 +75,21 @@ def interview_room(request, session_id):
 
         # award first interview badge
         Badge.objects.get_or_create(user=request.user, name='first_interview')
-
         # add XP
         request.user.xp_points += 100
         request.user.save()
+        # update streak
+        request.user.update_streak()
+
+        # award streak badge if 7 days
+        if request.user.streak_count >= 7:
+            Badge.objects.get_or_create(user=request.user, name='streak_7')
+
+        # award perfect score badge
+        if session.overall_score and session.overall_score >= 9:
+            Badge.objects.get_or_create(user=request.user, name='perfect_score')
+
+
 
         return redirect('session_results', session_id=session_id)
 
