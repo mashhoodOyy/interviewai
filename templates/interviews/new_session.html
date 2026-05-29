@@ -7,19 +7,19 @@
         <form method="POST">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label fw-bold">Job Title *</label>
-                <input type="text" name="job_title" class="form-control"
+                <label for="newsession-job-title" class="form-label fw-bold">Job Title *</label>
+                <input id="newsession-job-title" type="text" name="job_title" class="form-control"
                        placeholder="e.g. Python Developer, Data Scientist, Product Manager"
                        required>
             </div>
             <div class="mb-3">
-                <label class="form-label fw-bold">Company (optional)</label>
-                <input type="text" name="company" class="form-control"
+                <label for="newsession-company" class="form-label fw-bold">Company (optional)</label>
+                <input id="newsession-company" type="text" name="company" class="form-control"
                        placeholder="e.g. Google, Amazon, Microsoft">
                 <small class="text-muted">Questions will be tailored to this company's style</small>
             </div>
-            <div class="mb-4">
-                <label class="form-label fw-bold">Interview Mode</label>
+            <fieldset class="mb-4">
+                <legend class="form-label fw-bold">Interview Mode</legend>
                 <div class="row">
                     <div class="col-md-4 mb-2">
                         <input type="radio" class="btn-check" name="mode"

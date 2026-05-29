@@ -10,26 +10,26 @@
                 <form method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Username</label>
-                        <input type="text" class="form-control"
+                        <label for="profile-username" class="form-label fw-bold">Username</label>
+                        <input id="profile-username" type="text" class="form-control"
                                value="{{ request.user.username }}" disabled>
                         <small class="text-muted">Username cannot be changed</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Target Job Role</label>
-                        <input type="text" name="target_role" class="form-control"
+                        <label for="profile-target-role" class="form-label fw-bold">Target Job Role</label>
+                        <input id="profile-target-role" type="text" name="target_role" class="form-control"
                                value="{{ request.user.target_role }}"
                                placeholder="e.g. Python Developer, Data Scientist">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Target Company</label>
-                        <input type="text" name="target_company" class="form-control"
+                        <label for="profile-target-company" class="form-label fw-bold">Target Company</label>
+                        <input id="profile-target-company" type="text" name="target_company" class="form-control"
                                value="{{ request.user.target_company }}"
                                placeholder="e.g. Google, Microsoft, Amazon">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Experience Level</label>
-                        <select name="experience_level" class="form-select">
+                        <label for="profile-experience-level" class="form-label fw-bold">Experience Level</label>
+                        <select id="profile-experience-level" name="experience_level" class="form-select">
                             <option value="entry"
                                 {% if request.user.experience_level == 'entry' %}selected{% endif %}>
                                 Entry Level (0-2 years)
@@ -45,7 +45,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Resume (PDF)</label>
+                        <label for="profile-resume" class="form-label fw-bold">Resume (PDF)</label>
                         {% if request.user.resume %}
                             <div class="mb-2">
                                 <a href="{{ request.user.resume.url }}"
@@ -54,7 +54,7 @@
                                 </a>
                             </div>
                         {% endif %}
-                        <input type="file" name="resume" class="form-control"
+                        <input id="profile-resume" type="file" name="resume" class="form-control"
                                accept=".pdf">
                         <small class="text-muted">Upload your resume for AI analysis</small>
                     </div>

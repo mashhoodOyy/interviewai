@@ -7,25 +7,25 @@
         <form method="POST">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" required>
+                <label for="signup-username" class="form-label">Username</label>
+                <input id="signup-username" type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" required>
+                <label for="signup-email" class="form-label">Email</label>
+                <input id="signup-email" type="email" name="email" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <label for="signup-password" class="form-label">Password</label>
+                <input id="signup-password" type="password" name="password" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Target Job Role</label>
-                <input type="text" name="target_role" class="form-control"
+                <label for="signup-target-role" class="form-label">Target Job Role</label>
+                <input id="signup-target-role" type="text" name="target_role" class="form-control"
                        placeholder="e.g. Python Developer, Data Scientist">
             </div>
             <div class="mb-3">
-                <label class="form-label">Experience Level</label>
-                <select name="experience_level" class="form-select">
+                <label for="signup-experience-level" class="form-label">Experience Level</label>
+                <select id="signup-experience-level" name="experience_level" class="form-select">
                     <option value="entry">Entry Level (0-2 years)</option>
                     <option value="mid">Mid Level (2-5 years)</option>
                     <option value="senior">Senior Level (5+ years)</option>
