@@ -65,6 +65,7 @@
         <div class="ms-auto d-flex align-items-center gap-2">
 {% if request.user.is_authenticated %}
     <span class="text-white me-2">⭐ {{ request.user.xp_points }} XP</span>
+    <a href="{% url 'daily_challenge' %}" class="btn btn-warning btn-sm">🎯 Daily</a>
     <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">Dashboard</a>
     <a href="{% url 'new_session' %}" class="btn btn-primary btn-sm">+ Practice</a>
     <a href="{% url 'resume_analysis' %}" class="btn btn-outline-light btn-sm">📄 Resume</a>

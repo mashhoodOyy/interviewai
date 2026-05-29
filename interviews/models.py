@@ -82,3 +82,30 @@ class Badge(models.Model):
 
     class Meta:
         unique_together = ['user', 'name']
+
+
+class DailyChallenge(models.Model):
+    question_text = models.TextField()
+    category = models.CharField(max_length=20)
+    date = models.DateField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Daily Challenge - {self.date}"
+
+    class Meta:
+        ordering = ['-date']
+
+class DailyChallengeAnswer(models.Model):
+    challenge = models.ForeignKey(DailyChallenge, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    answer_text = models.TextField()
+    ai_score = models.FloatField(null=True, blank=True)
+    ai_feedback = models.TextField(blank=True)
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['challenge', 'user']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.challenge.date}"

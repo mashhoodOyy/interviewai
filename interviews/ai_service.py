@@ -115,3 +115,25 @@ missing_skills: skills needed for {target_role} that are missing from resume"""
     response_text = response.choices[0].message.content
     result = json.loads(response_text)
     return result
+
+def generate_daily_question():
+    prompt = """Generate one interesting behavioral interview question that is suitable for all job roles and experience levels.
+
+Return ONLY this JSON, no other text, no markdown, no backticks:
+{
+    "text": "question here",
+    "category": "behavioral"
+}"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.9,
+        max_tokens=200,
+    )
+
+    response_text = response.choices[0].message.content
+    result = json.loads(response_text)
+    return result

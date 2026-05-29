@@ -143,3 +143,68 @@ def session_results(request, session_id):
         'session': session,
         'answers': answers,
     })
+
+from datetime import date
+from .models import DailyChallenge, DailyChallengeAnswer
+from .ai_service import generate_daily_question
+
+@login_required
+def daily_challenge(request):
+    today = date.today()
+
+    # get or create today's challenge
+    challenge = DailyChallenge.objects.filter(date=today).first()
+
+    if not challenge:
+        # generate new question for today
+        try:
+            question_data = generate_daily_question()
+            challenge = DailyChallenge.objects.create(
+                question_text=question_data['text'],
+                category=question_data['category'],
+                date=today
+            )
+        except Exception as e:
+            messages.error(request, 'Failed to load daily challenge. Try again!')
+            return redirect('dashboard')
+
+    # check if user already answered today
+    existing_answer = DailyChallengeAnswer.objects.filter(
+        challenge=challenge,
+        user=request.user
+    ).first()
+
+    if request.method == 'POST' and not existing_answer:
+        answer_text = request.POST.get('answer', '')
+        if answer_text.strip():
+            try:
+                result = score_answer(
+                    challenge.question_text,
+                    answer_text,
+                    'General Professional',
+                    request.user.experience_level
+                )
+
+                DailyChallengeAnswer.objects.create(
+                    challenge=challenge,
+                    user=request.user,
+                    answer_text=answer_text,
+                    ai_score=result['score'],
+                    ai_feedback=result['feedback']
+                )
+
+                # award XP
+                request.user.xp_points += 25
+                request.user.save()
+
+                messages.success(request, f'Daily challenge complete! +25 XP 🎉 Score: {result["score"]}/10')
+                return redirect('daily_challenge')
+
+            except Exception as e:
+                messages.error(request, 'Failed to score answer. Try again!')
+
+    return render(request, 'interviews/daily_challenge.html', {
+        'challenge': challenge,
+        'existing_answer': existing_answer,
+        'today': today,
+    })
