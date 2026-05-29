@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Resume Analysis{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h3 class="fw-bold mb-4">📄 AI Resume Analysis</h3>
+
+            <!-- Upload Form -->
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">Upload Your Resume</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Resume (PDF only)</label>
+                        <input type="file" name="resume" class="form-control"
+                               accept=".pdf" required>
+                        <small class="text-muted">
+                            AI will analyze your resume for
+                            <strong>{{ request.user.target_role|default:"your target role" }}</strong>
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        🤖 Analyze Resume
+                    </button>
+                    <small class="text-muted ms-2">+50 XP for analyzing</small>
+                </form>
+            </div>
+
+            <!-- Error -->
+            {% if error %}
+                <div class="alert alert-danger">❌ {{ error }}</div>
+            {% endif %}
+
+            <!-- Analysis Results -->
+            {% if analysis %}
+                <!-- Scores -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-4 text-center">
+                            <div class="display-4 fw-bold
+                                {% if analysis.overall_score >= 8 %}text-success
+                                {% elif analysis.overall_score >= 6 %}text-warning
+                                {% else %}text-danger{% endif %}">
+                                {{ analysis.overall_score }}/10
+                            </div>
+                            <p class="text-muted mb-0">Overall Resume Score</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-4 text-center">
+                            <div class="display-4 fw-bold
+                                {% if analysis.ats_score >= 8 %}text-success
+                                {% elif analysis.ats_score >= 6 %}text-warning
+                                {% else %}text-danger{% endif %}">
+                                {{ analysis.ats_score }}/10
+                            </div>
+                            <p class="text-muted mb-0">ATS Compatibility Score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="card p-4 mb-3">
+                    <h5 class="fw-bold mb-2">📋 Summary</h5>
+                    <p class="mb-0">{{ analysis.summary }}</p>
+                </div>
+
+                <!-- Strengths -->
+                <div class="card p-4 mb-3" style="border-left: 4px solid #28a745;">
+                    <h5 class="fw-bold text-success mb-3">✅ Strengths</h5>
+                    {% for strength in analysis.strengths %}
+                        <div class="d-flex align-items-start mb-2">
+                            <span class="text-success me-2">•</span>
+                            <span>{{ strength }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Weaknesses -->
+                <div class="card p-4 mb-3" style="border-left: 4px solid #dc3545;">
+                    <h5 class="fw-bold text-danger mb-3">⚠️ Weaknesses</h5>
+                    {% for weakness in analysis.weaknesses %}
+                        <div class="d-flex align-items-start mb-2">
+                            <span class="text-danger me-2">•</span>
+                            <span>{{ weakness }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Missing Skills -->
+                <div class="card p-4 mb-3" style="border-left: 4px solid #ffc107;">
+                    <h5 class="fw-bold text-warning mb-3">🎯 Missing Skills for {{ request.user.target_role }}</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in analysis.missing_skills %}
+                            <span class="badge bg-warning text-dark p-2">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Improvement Tips -->
+                <div class="card p-4 mb-3" style="border-left: 4px solid #4e54c8;">
+                    <h5 class="fw-bold mb-3">💡 Improvement Tips</h5>
+                    {% for tip in analysis.improvement_tips %}
+                        <div class="d-flex align-items-start mb-2">
+                            <span class="text-primary me-2">{{ forloop.counter }}.</span>
+                            <span>{{ tip }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- ATS Tips -->
+                <div class="card p-4 mb-3" style="border-left: 4px solid #17a2b8;">
+                    <h5 class="fw-bold text-info mb-3">🤖 ATS Optimization Tips</h5>
+                    {% for tip in analysis.ats_tips %}
+                        <div class="d-flex align-items-start mb-2">
+                            <span class="text-info me-2">•</span>
+                            <span>{{ tip }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Practice Button -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'new_session' %}" class="btn btn-primary btn-lg">
+                        🎯 Practice Interview for {{ request.user.target_role }}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

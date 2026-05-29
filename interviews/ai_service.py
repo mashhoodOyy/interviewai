@@ -77,3 +77,41 @@ filler_word_count is how many filler words (um, uh, like, you know, basically) a
     response_text = response.choices[0].message.content
     result = json.loads(response_text)
     return result
+
+def analyze_resume(resume_text, target_role, experience_level):
+    prompt = f"""You are an expert career coach and resume reviewer.
+
+Analyze this resume for someone targeting: {target_role}
+Experience Level: {experience_level}
+
+Resume Content:
+{resume_text[:3000]}
+
+Return ONLY this JSON, no other text, no markdown, no backticks:
+{{
+    "overall_score": 7.5,
+    "summary": "Brief overall assessment",
+    "strengths": ["strength 1", "strength 2", "strength 3"],
+    "weaknesses": ["weakness 1", "weakness 2"],
+    "missing_skills": ["skill 1", "skill 2", "skill 3"],
+    "improvement_tips": ["tip 1", "tip 2", "tip 3"],
+    "ats_score": 8.0,
+    "ats_tips": ["ats tip 1", "ats tip 2"]
+}}
+
+overall_score: rate resume quality 0-10
+ats_score: how well it passes ATS systems 0-10
+missing_skills: skills needed for {target_role} that are missing from resume"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3,
+        max_tokens=1000,
+    )
+
+    response_text = response.choices[0].message.content
+    result = json.loads(response_text)
+    return result

@@ -3,6 +3,9 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import User
+import PyPDF2
+import io
+from interviews.ai_service import analyze_resume
 
 def signup(request):
     if request.method == 'POST':
@@ -60,3 +63,59 @@ def profile(request):
         messages.success(request, 'Profile updated successfully!')
         return redirect('profile')
     return render(request, 'accounts/profile.html')
+
+
+@login_required
+def resume_analysis(request):
+    analysis = None
+    error = None
+
+    if request.method == 'POST':
+        if 'resume' in request.FILES:
+            resume_file = request.FILES['resume']
+
+            try:
+                # read file content FIRST before saving
+                file_content = resume_file.read()
+
+                # now save to user profile
+                import django.core.files.base as files
+                request.user.resume.save(
+                    resume_file.name,
+                    files.ContentFile(file_content),
+                    save=True
+                )
+
+                # read PDF text from content we already read
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_content))
+                resume_text = ''
+                for page in pdf_reader.pages:
+                    text = page.extract_text()
+                    if text:
+                        resume_text += text
+
+                print(f"Text length: {len(resume_text)}")
+                print(f"First 200 chars: {resume_text[:200]}")
+
+                if not resume_text.strip():
+                    error = 'Could not read text from PDF.'
+                else:
+                    analysis = analyze_resume(
+                        resume_text,
+                        request.user.target_role or 'Software Developer',
+                        request.user.experience_level
+                    )
+                    request.user.xp_points += 50
+                    request.user.save()
+                    messages.success(request, 'Resume analyzed! +50 XP 🎉')
+
+            except Exception as e:
+                error = f'Error: {str(e)}'
+                print(f"Exception: {str(e)}")
+        else:
+            error = 'Please upload a resume file.'
+
+    return render(request, 'accounts/resume_analysis.html', {
+        'analysis': analysis,
+        'error': error,
+    })
