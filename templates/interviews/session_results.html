@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Results - {{ session.job_title }}{% endblock %}
+
+{% block content %}
+    <!-- Score Header -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Interview Complete! 🎉</h2>
+        <p class="text-muted">{{ session.job_title }} at {{ session.company|default:"General" }}</p>
+        <div class="display-1 fw-bold
+            {% if session.overall_score >= 8 %}text-success
+            {% elif session.overall_score >= 6 %}text-warning
+            {% else %}text-danger{% endif %}">
+            {{ session.overall_score }}/10
+        </div>
+        <p class="text-muted">Overall Score</p>
+        {% if session.overall_score >= 8 %}
+            <p class="text-success fw-bold">Excellent! You're ready for this interview! 🌟</p>
+        {% elif session.overall_score >= 6 %}
+            <p class="text-warning fw-bold">Good job! A bit more practice will make you perfect! 💪</p>
+        {% else %}
+            <p class="text-danger fw-bold">Keep practicing! You'll get there! 🎯</p>
+        {% endif %}
+    </div>
+
+    <!-- Answers Review -->
+    <h4 class="fw-bold mb-4">Answer Review</h4>
+    {% for answer in answers %}
+        <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="flex-grow-1">
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge bg-primary">{{ answer.question.get_category_display }}</span>
+                        <span class="badge bg-secondary">{{ answer.question.get_difficulty_display }}</span>
+                    </div>
+                    <h6 class="fw-bold">{{ answer.question.text }}</h6>
+                </div>
+                <div class="score-badge ms-3
+                    {% if answer.ai_score >= 8 %}bg-success text-white
+                    {% elif answer.ai_score >= 6 %}bg-warning text-dark
+                    {% else %}bg-danger text-white{% endif %}">
+                    {{ answer.ai_score }}
+                </div>
+            </div>
+
+            <!-- Your Answer -->
+            <div class="mb-3">
+                <small class="text-muted fw-bold">YOUR ANSWER:</small>
+                <p class="mt-1">{{ answer.text }}</p>
+            </div>
+
+            <!-- AI Feedback -->
+            <div class="p-3 rounded mb-3" style="background:#f0f4ff;">
+                <small class="text-primary fw-bold">🤖 AI FEEDBACK:</small>
+                <p class="mt-1 mb-0">{{ answer.ai_feedback }}</p>
+            </div>
+
+            <!-- Improvement Tips -->
+            <div class="p-3 rounded mb-3" style="background:#fff8e1;">
+                <small class="text-warning fw-bold">💡 IMPROVEMENT TIPS:</small>
+                <p class="mt-1 mb-0">{{ answer.improvement_tips }}</p>
+            </div>
+
+            <!-- Ideal Answer -->
+            <div class="p-3 rounded" style="background:#e8f5e9;">
+                <small class="text-success fw-bold">✅ IDEAL ANSWER:</small>
+                <p class="mt-1 mb-0">{{ answer.ideal_answer }}</p>
+            </div>
+
+            {% if answer.filler_word_count > 0 %}
+                <div class="mt-2">
+                    <small class="text-danger">
+                        ⚠️ {{ answer.filler_word_count }} filler words detected
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div class="text-center mt-4 mb-5">
+        <a href="{% url 'new_session' %}" class="btn btn-primary btn-lg me-3">
+            🎯 Practice Again
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">
+            📊 View Dashboard
+        </a>
+    </div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}New Interview Session{% endblock %}
+
+{% block content %}
+    <div class="card mx-auto p-4" style="max-width: 600px;">
+        <h3 class="fw-bold mb-4">🎯 Start New Interview</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Job Title *</label>
+                <input type="text" name="job_title" class="form-control"
+                       placeholder="e.g. Python Developer, Data Scientist, Product Manager"
+                       required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Company (optional)</label>
+                <input type="text" name="company" class="form-control"
+                       placeholder="e.g. Google, Amazon, Microsoft">
+                <small class="text-muted">Questions will be tailored to this company's style</small>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold">Interview Mode</label>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <input type="radio" class="btn-check" name="mode"
+                               id="quick" value="quick" checked>
+                        <label class="btn btn-outline-primary w-100" for="quick">
+                            ⚡ Quick<br>
+                            <small>5 questions</small>
+                        </label>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <input type="radio" class="btn-check" name="mode"
+                               id="full" value="full">
+                        <label class="btn btn-outline-primary w-100" for="full">
+                            📋 Full<br>
+                            <small>10 questions</small>
+                        </label>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <input type="radio" class="btn-check" name="mode"
+                               id="custom" value="custom">
+                        <label class="btn btn-outline-primary w-100" for="custom">
+                            ⚙️ Custom<br>
+                            <small>7 questions</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                Generate Questions 🤖
+            </button>
+        </form>
+    </div>
+{% endblock %}

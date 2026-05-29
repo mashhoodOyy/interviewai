@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}InterviewAI - Ace Your Next Interview{% endblock %}
+
+{% block content %}
+    <!-- Hero -->
+    <div class="p-5 mb-5 rounded-3 text-white text-center"
+         style="background: linear-gradient(135deg, #1a1a2e, #4e54c8);">
+        <h1 class="display-4 fw-bold">Ace Your Next Interview</h1>
+        <p class="lead mt-3">
+            Practice with AI-powered mock interviews, get instant feedback,
+            and track your progress
+        </p>
+        <div class="mt-4">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'new_session' %}" class="btn btn-warning btn-lg me-3">
+                    🎯 Start Practice
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-lg">
+                    📊 Dashboard
+                </a>
+            {% else %}
+                <a href="{% url 'signup' %}" class="btn btn-warning btn-lg me-3">
+                    🚀 Get Started Free
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                    Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Features -->
+    <h3 class="text-center fw-bold mb-4">Why InterviewAI?</h3>
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 text-center h-100">
+                <div class="display-4 mb-3">🤖</div>
+                <h5 class="fw-bold">AI-Powered Questions</h5>
+                <p class="text-muted">Get real interview questions tailored to your specific job title and company</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 text-center h-100">
+                <div class="display-4 mb-3">📊</div>
+                <h5 class="fw-bold">Instant Scoring</h5>
+                <p class="text-muted">Get scored 0-10 on every answer with detailed feedback and improvement tips</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 text-center h-100">
+                <div class="display-4 mb-3">🏆</div>
+                <h5 class="fw-bold">Track Progress</h5>
+                <p class="text-muted">See your improvement over time, earn badges and build your streak</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <h3 class="text-center fw-bold mb-4">How It Works</h3>
+    <div class="row mb-5">
+        <div class="col-md-3 text-center mb-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width:60px;height:60px;font-size:24px;font-weight:700;">1</div>
+            <h6 class="fw-bold">Enter Job Details</h6>
+            <p class="text-muted small">Tell us the role and company you're interviewing for</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width:60px;height:60px;font-size:24px;font-weight:700;">2</div>
+            <h6 class="fw-bold">Get AI Questions</h6>
+            <p class="text-muted small">AI generates real interview questions for your specific role</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width:60px;height:60px;font-size:24px;font-weight:700;">3</div>
+            <h6 class="fw-bold">Answer Questions</h6>
+            <p class="text-muted small">Type your answers just like a real interview</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                 style="width:60px;height:60px;font-size:24px;font-weight:700;">4</div>
+            <h6 class="fw-bold">Get Feedback</h6>
+            <p class="text-muted small">Receive instant AI feedback, score and improvement tips</p>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h2 class="fw-bold mb-4">👋 Welcome back, {{ request.user.username }}!</h2>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 text-center">
+                <div class="display-5 fw-bold text-primary">{{ completed_count }}</div>
+                <small class="text-muted">Sessions Completed</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 text-center">
+                <div class="display-5 fw-bold text-success">{{ avg_score }}</div>
+                <small class="text-muted">Average Score</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 text-center">
+                <div class="display-5 fw-bold text-warning">{{ xp_points }}</div>
+                <small class="text-muted">XP Points</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 text-center">
+                <div class="display-5 fw-bold text-danger">{{ streak }}</div>
+                <small class="text-muted">Day Streak 🔥</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Sessions -->
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold">Recent Sessions</h5>
+                <a href="{% url 'new_session' %}" class="btn btn-primary btn-sm">
+                    + New Session
+                </a>
+            </div>
+
+            {% for session in sessions %}
+                <div class="card p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ session.job_title }}</h6>
+                            <small class="text-muted">
+                                {{ session.company|default:"General" }} ·
+                                {{ session.get_mode_display }} ·
+                                {{ session.created_at|date:"M d, Y" }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            {% if session.status == 'completed' %}
+                                <span class="badge
+                                    {% if session.overall_score >= 8 %}bg-success
+                                    {% elif session.overall_score >= 6 %}bg-warning text-dark
+                                    {% else %}bg-danger{% endif %} mb-1">
+                                    {{ session.overall_score }}/10
+                                </span>
+                                <br>
+                                <a href="{% url 'session_results' session.id %}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    View Results
+                                </a>
+                            {% else %}
+                                <span class="badge bg-info mb-1">In Progress</span>
+                                <br>
+                                <a href="{% url 'interview_room' session.id %}"
+                                   class="btn btn-primary btn-sm">
+                                    Continue
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center py-5">
+                    <h5 class="text-muted">No sessions yet!</h5>
+                    <a href="{% url 'new_session' %}" class="btn btn-primary mt-2">
+                        Start Your First Interview
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Badges -->
+        <div class="col-md-4">
+            <h5 class="fw-bold mb-3">🏆 Badges</h5>
+            <div class="card p-3">
+                {% for badge in badges %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="fs-3 me-3">
+                            {% if badge.name == 'first_interview' %}🎯
+                            {% elif badge.name == 'streak_7' %}🔥
+                            {% elif badge.name == 'perfect_score' %}⭐
+                            {% elif badge.name == 'speed_demon' %}⚡
+                            {% elif badge.name == 'expert' %}🏆
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="fw-bold mb-0">{{ badge.get_name_display }}</p>
+                            <small class="text-muted">
+                                Earned {{ badge.earned_at|date:"M d, Y" }}
+                            </small>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted text-center">
+                        Complete your first interview to earn badges!
+                    </p>
+                {% endfor %}
+            </div>
+
+            <!-- Quick Start -->
+            <div class="card p-3 mt-3 text-center"
+                 style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
+                <h6 class="text-white fw-bold">Ready to Practice?</h6>
+                <p class="text-white small">Start a new interview session now</p>
+                <a href="{% url 'new_session' %}" class="btn btn-light btn-sm">
+                    🎯 Start Now
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
