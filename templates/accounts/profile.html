@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <!-- Profile Form -->
+        <div class="col-md-8">
+            <div class="card p-4">
+                <h3 class="fw-bold mb-4">👤 My Profile</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Username</label>
+                        <input type="text" class="form-control"
+                               value="{{ request.user.username }}" disabled>
+                        <small class="text-muted">Username cannot be changed</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Job Role</label>
+                        <input type="text" name="target_role" class="form-control"
+                               value="{{ request.user.target_role }}"
+                               placeholder="e.g. Python Developer, Data Scientist">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Company</label>
+                        <input type="text" name="target_company" class="form-control"
+                               value="{{ request.user.target_company }}"
+                               placeholder="e.g. Google, Microsoft, Amazon">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Experience Level</label>
+                        <select name="experience_level" class="form-select">
+                            <option value="entry"
+                                {% if request.user.experience_level == 'entry' %}selected{% endif %}>
+                                Entry Level (0-2 years)
+                            </option>
+                            <option value="mid"
+                                {% if request.user.experience_level == 'mid' %}selected{% endif %}>
+                                Mid Level (2-5 years)
+                            </option>
+                            <option value="senior"
+                                {% if request.user.experience_level == 'senior' %}selected{% endif %}>
+                                Senior Level (5+ years)
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Resume (PDF)</label>
+                        {% if request.user.resume %}
+                            <div class="mb-2">
+                                <a href="{{ request.user.resume.url }}"
+                                   target="_blank" class="btn btn-outline-secondary btn-sm">
+                                    📄 View Current Resume
+                                </a>
+                            </div>
+                        {% endif %}
+                        <input type="file" name="resume" class="form-control"
+                               accept=".pdf">
+                        <small class="text-muted">Upload your resume for AI analysis</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes ✅
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Stats Sidebar -->
+        <div class="col-md-4">
+            <div class="card p-4 text-center mb-3"
+                 style="background: linear-gradient(135deg, #1a1a2e, #4e54c8);">
+                <div class="display-4 mb-2">👤</div>
+                <h5 class="text-white fw-bold">{{ request.user.username }}</h5>
+                <p class="text-white-50 mb-0">{{ request.user.get_experience_level_display }}</p>
+            </div>
+
+            <div class="card p-4">
+                <h6 class="fw-bold mb-3">📊 Your Stats</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">XP Points</span>
+                    <span class="fw-bold text-warning">⭐ {{ request.user.xp_points }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Streak</span>
+                    <span class="fw-bold text-danger">🔥 {{ request.user.streak_count }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Target Role</span>
+                    <span class="fw-bold">{{ request.user.target_role|default:"Not set" }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Target Company</span>
+                    <span class="fw-bold">{{ request.user.target_company|default:"Not set" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

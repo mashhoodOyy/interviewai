@@ -62,14 +62,15 @@
         <a class="navbar-brand" href="{% url 'home' %}">🎯 InterviewAI</a>
         <div class="ms-auto d-flex align-items-center gap-2">
             {% if request.user.is_authenticated %}
-                <span class="text-white me-2">⭐ {{ request.user.xp_points }} XP</span>
-                <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">Dashboard</a>
-                <a href="{% url 'new_session' %}" class="btn btn-primary btn-sm">+ Practice</a>
-                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Get Started</a>
-            {% endif %}
+    <span class="text-white me-2">⭐ {{ request.user.xp_points }} XP</span>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">Dashboard</a>
+    <a href="{% url 'new_session' %}" class="btn btn-primary btn-sm">+ Practice</a>
+    <a href="{% url 'profile' %}" class="btn btn-outline-light btn-sm">Profile</a>
+    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a>
+{% else %}
+    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Login</a>
+    <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Get Started</a>
+{% endif %}
         </div>
     </nav>
 
