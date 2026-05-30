@@ -2,94 +2,78 @@
 {% block title %}Resume Analysis{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <h3 class="fw-bold mb-4">📄 AI Resume Analysis</h3>
-
-            <!-- Upload Form -->
-            <div class="card p-4 mb-4">
-                <h5 class="fw-bold mb-3">Upload Your Resume</h5>
-                <form method="POST" enctype="multipart/form-data">
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="card glass-card p-4 mb-4" data-aos="fade-up">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">📄 AI Resume Analysis</h3>
+                        <p class="text-muted mb-0">Optimize your resume for your target role and improve interview matching.</p>
+                    </div>
+                    <span class="pill-status pill-warning">+50 XP</span>
+                </div>
+                <form method="POST" enctype="multipart/form-data" class="form-animated">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="resume-analysis-file" class="form-label">Resume (PDF only)</label>
-                        <input id="resume-analysis-file" type="file" name="resume" class="form-control"
-                               accept=".pdf" required>
-                        <small class="text-muted">
-                            AI will analyze your resume for
-                            <strong>{{ request.user.target_role|default:"your target role" }}</strong>
-                        </small>
+                        <input id="resume-analysis-file" type="file" name="resume" class="form-control" accept=".pdf" required>
+                        <small class="text-muted">AI will analyze your resume for <strong>{{ request.user.target_role|default:"your target role" }}</strong></small>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        🤖 Analyze Resume
-                    </button>
-                    <small class="text-muted ms-2">+50 XP for analyzing</small>
+                    <button type="submit" class="btn btn-primary btn-lg glow-button">🤖 Analyze Resume</button>
                 </form>
             </div>
 
-            <!-- Error -->
             {% if error %}
                 <div class="alert alert-danger">❌ {{ error }}</div>
             {% endif %}
 
-            <!-- Analysis Results -->
             {% if analysis %}
-                <!-- Scores -->
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="card p-4 text-center">
-                            <div class="display-4 fw-bold
-                                {% if analysis.overall_score >= 8 %}text-success
-                                {% elif analysis.overall_score >= 6 %}text-warning
-                                {% else %}text-danger{% endif %}">
-                                {{ analysis.overall_score }}/10
-                            </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4 text-center">
+                            <div class="display-4 fw-bold {% if analysis.overall_score >= 8 %}text-success{% elif analysis.overall_score >= 6 %}text-warning{% else %}text-danger{% endif %}">{{ analysis.overall_score }}/10</div>
                             <p class="text-muted mb-0">Overall Resume Score</p>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card p-4 text-center">
-                            <div class="display-4 fw-bold
-                                {% if analysis.ats_score >= 8 %}text-success
-                                {% elif analysis.ats_score >= 6 %}text-warning
-                                {% else %}text-danger{% endif %}">
-                                {{ analysis.ats_score }}/10
-                            </div>
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4 text-center">
+                            <div class="display-4 fw-bold {% if analysis.ats_score >= 8 %}text-success{% elif analysis.ats_score >= 6 %}text-warning{% else %}text-danger{% endif %}">{{ analysis.ats_score }}/10</div>
                             <p class="text-muted mb-0">ATS Compatibility Score</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Summary -->
-                <div class="card p-4 mb-3">
-                    <h5 class="fw-bold mb-2">📋 Summary</h5>
+                <div class="card glass-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3">📋 Summary</h5>
                     <p class="mb-0">{{ analysis.summary }}</p>
                 </div>
 
-                <!-- Strengths -->
-                <div class="card p-4 mb-3" style="border-left: 4px solid #28a745;">
-                    <h5 class="fw-bold text-success mb-3">✅ Strengths</h5>
-                    {% for strength in analysis.strengths %}
-                        <div class="d-flex align-items-start mb-2">
-                            <span class="text-success me-2">•</span>
-                            <span>{{ strength }}</span>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4" style="border-left: 4px solid #22c55e;">
+                            <h5 class="fw-bold text-success mb-3">✅ Strengths</h5>
+                            {% for strength in analysis.strengths %}
+                                <div class="d-flex align-items-start mb-2">
+                                    <span class="text-success me-2">•</span>
+                                    <span>{{ strength }}</span>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4" style="border-left: 4px solid #ef4444;">
+                            <h5 class="fw-bold text-danger mb-3">⚠️ Weaknesses</h5>
+                            {% for weakness in analysis.weaknesses %}
+                                <div class="d-flex align-items-start mb-2">
+                                    <span class="text-danger me-2">•</span>
+                                    <span>{{ weakness }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Weaknesses -->
-                <div class="card p-4 mb-3" style="border-left: 4px solid #dc3545;">
-                    <h5 class="fw-bold text-danger mb-3">⚠️ Weaknesses</h5>
-                    {% for weakness in analysis.weaknesses %}
-                        <div class="d-flex align-items-start mb-2">
-                            <span class="text-danger me-2">•</span>
-                            <span>{{ weakness }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Missing Skills -->
-                <div class="card p-4 mb-3" style="border-left: 4px solid #ffc107;">
+                <div class="card glass-card p-4 mb-4" style="border-left: 4px solid #f59e0b;">
                     <h5 class="fw-bold text-warning mb-3">🎯 Missing Skills for {{ request.user.target_role }}</h5>
                     <div class="d-flex flex-wrap gap-2">
                         {% for skill in analysis.missing_skills %}
@@ -98,33 +82,33 @@
                     </div>
                 </div>
 
-                <!-- Improvement Tips -->
-                <div class="card p-4 mb-3" style="border-left: 4px solid #4e54c8;">
-                    <h5 class="fw-bold mb-3">💡 Improvement Tips</h5>
-                    {% for tip in analysis.improvement_tips %}
-                        <div class="d-flex align-items-start mb-2">
-                            <span class="text-primary me-2">{{ forloop.counter }}.</span>
-                            <span>{{ tip }}</span>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4" style="border-left: 4px solid #4e54c8;">
+                            <h5 class="fw-bold mb-3">💡 Improvement Tips</h5>
+                            {% for tip in analysis.improvement_tips %}
+                                <div class="d-flex align-items-start mb-2">
+                                    <span class="text-primary me-2">{{ forloop.counter }}.</span>
+                                    <span>{{ tip }}</span>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card glass-card p-4" style="border-left: 4px solid #0ea5e9;">
+                            <h5 class="fw-bold text-info mb-3">🤖 ATS Optimization Tips</h5>
+                            {% for tip in analysis.ats_tips %}
+                                <div class="d-flex align-items-start mb-2">
+                                    <span class="text-info me-2">•</span>
+                                    <span>{{ tip }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
 
-                <!-- ATS Tips -->
-                <div class="card p-4 mb-3" style="border-left: 4px solid #17a2b8;">
-                    <h5 class="fw-bold text-info mb-3">🤖 ATS Optimization Tips</h5>
-                    {% for tip in analysis.ats_tips %}
-                        <div class="d-flex align-items-start mb-2">
-                            <span class="text-info me-2">•</span>
-                            <span>{{ tip }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Practice Button -->
                 <div class="text-center mt-4">
-                    <a href="{% url 'new_session' %}" class="btn btn-primary btn-lg">
-                        🎯 Practice Interview for {{ request.user.target_role }}
-                    </a>
+                    <a href="{% url 'new_session' %}" class="btn btn-primary btn-lg glow-button">🎯 Practice Interview for {{ request.user.target_role }}</a>
                 </div>
             {% endif %}
         </div>

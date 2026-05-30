@@ -2,84 +2,57 @@
 {% block title %}Daily Challenge{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-
-            <!-- Header -->
-            <div class="text-center mb-4">
-                <h2 class="fw-bold">🎯 Daily Challenge</h2>
-                <p class="text-muted">{{ today|date:"F d, Y" }}</p>
-                <span class="badge bg-primary px-3 py-2">+25 XP for completing</span>
-            </div>
-
-            <!-- Challenge Card -->
-            <div class="card p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="badge bg-primary">{{ challenge.category|title }}</span>
-                    <span class="text-muted small">Everyone answers the same question today</span>
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="card glass-card p-5" data-aos="fade-up">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                    <div>
+                        <span class="badge bg-primary mb-2">+25 XP for completing</span>
+                        <h2 class="fw-bold mb-1">🎯 Daily Challenge</h2>
+                        <p class="text-muted mb-0">{{ today|date:"F d, Y" }}</p>
+                    </div>
+                    <span class="pill-status pill-success">Today’s question</span>
                 </div>
 
-                <h4 class="fw-bold mb-4">{{ challenge.question_text }}</h4>
+                <div class="card small-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary">{{ challenge.category|title }}</span>
+                        <span class="text-muted small">Everyone answers the same question today</span>
+                    </div>
+                    <h4 class="fw-bold mb-0">{{ challenge.question_text }}</h4>
+                </div>
 
                 {% if existing_answer %}
-                    <!-- Already answered -->
-                    <div class="alert alert-success">
-                        ✅ You completed today's challenge!
-                    </div>
-
-                    <!-- Show result -->
-                    <div class="card p-3 mb-3" style="background:#f0f4ff;">
+                    <div class="alert alert-success">✅ You completed today's challenge!</div>
+                    <div class="card small-card p-4 mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <small class="text-primary fw-bold">YOUR ANSWER:</small>
-                            <span class="badge bg-primary fs-6">
-                                {{ existing_answer.ai_score }}/10
-                            </span>
+                            <span class="badge bg-primary fs-6">{{ existing_answer.ai_score }}/10</span>
                         </div>
                         <p class="mb-0">{{ existing_answer.answer_text }}</p>
                     </div>
-
-                    <div class="card p-3" style="background:#e8f5e9;">
+                    <div class="card small-card p-4 mb-3">
                         <small class="text-success fw-bold">🤖 AI FEEDBACK:</small>
-                        <p class="mt-1 mb-0">{{ existing_answer.ai_feedback }}</p>
+                        <p class="mt-2 mb-0">{{ existing_answer.ai_feedback }}</p>
                     </div>
-
                     <div class="text-center mt-4">
-                        <a href="{% url 'dashboard' %}" class="btn btn-primary me-2">
-                            📊 View Dashboard
-                        </a>
-                        <a href="{% url 'new_session' %}" class="btn btn-outline-primary">
-                            🎯 Start Full Interview
-                        </a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary me-2">📊 View Dashboard</a>
+                        <a href="{% url 'new_session' %}" class="btn btn-outline-light">🎯 Start Full Interview</a>
                     </div>
-
                 {% else %}
-                    <!-- Answer form -->
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="dailyAnswer" class="form-label text-muted">
-                                Your Answer:
-                            </label>
-                            <textarea
-                                name="answer"
-                                id="dailyAnswer"
-                                class="form-control"
-                                rows="6"
-                                placeholder="Type your answer here..."
-                                required></textarea>
+                        <div class="mb-4">
+                            <label for="dailyAnswer" class="form-label text-muted">Your Answer</label>
+                            <textarea name="answer" id="dailyAnswer" class="form-control" rows="6" placeholder="Type your answer here..." required></textarea>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                💡 Use the STAR method for best results
-                            </small>
-                            <button type="submit" class="btn btn-primary">
-                                Submit Answer 🚀
-                            </button>
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                            <small class="text-muted mb-0">💡 Use the STAR method for best results.</small>
+                            <button type="submit" class="btn btn-primary btn-lg glow-button">Submit Answer 🚀</button>
                         </div>
                     </form>
                 {% endif %}
             </div>
-
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Voice Interview Setup{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center py-5">
+        <div class="col-lg-7 col-md-9">
+            <div class="card glass-card p-5" data-aos="fade-up">
+                <div class="text-center mb-4">
+                    <div class="display-1 voice-setup-icon mb-3">🎤</div>
+                    <h3 class="fw-bold mb-2">Voice Interview</h3>
+                    <p class="text-muted mb-3">Experience a real interview with AI. Speak naturally — no typing required.</p>
+                </div>
+
+                <div class="row g-3 mb-4 text-center voice-setup-grid">
+                    <div class="col-sm-4">
+                        <div class="small-card p-3 rounded-4 h-100">
+                            <div class="fs-4 mb-2">🤖</div>
+                            <small class="text-muted">AI Interviewer</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="small-card p-3 rounded-4 h-100">
+                            <div class="fs-4 mb-2">⏱️</div>
+                            <small class="text-muted">5-10 Minutes</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="small-card p-3 rounded-4 h-100">
+                            <div class="fs-4 mb-2">📊</div>
+                            <small class="text-muted">Full Report</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="browserWarning" class="alert alert-warning d-none">
+                    ⚠️ Voice interview requires Google Chrome for best experience.
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4 text-start">
+                        <label for="job_title" class="form-label fw-bold">Job Title you're interviewing for</label>
+                        <input type="text" name="job_title" id="job_title" class="form-control form-control-lg" placeholder="e.g. Python Developer, Data Scientist" value="{{ request.user.target_role }}" required>
+                    </div>
+
+                    {% if request.user.resume %}
+                        <div class="alert alert-info text-start">
+                            ✅ Your resume is uploaded — AI will ask resume-specific questions!
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning text-start">
+                            📄 No resume uploaded — <a href="{% url 'profile' %}">upload one</a> for personalized questions!</a>
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 glow-button">🎤 Start Voice Interview</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .voice-setup-icon { font-size: clamp(3.5rem, 9vw, 5.5rem); }
+        .voice-setup-grid .small-card { min-height: 146px; }
+        @media (max-width: 575.98px) {
+            .voice-setup-grid .small-card { min-height: auto; }
+        }
+    </style>
+
+    <script>
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            document.getElementById('browserWarning').classList.remove('d-none');
+        }
+    </script>
+{% endblock %}

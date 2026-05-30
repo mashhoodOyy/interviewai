@@ -2,149 +2,117 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-    <h2 class="fw-bold mb-4">👋 Welcome back, {{ request.user.username }}!</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <p class="text-primary text-uppercase fw-bold mb-2">Welcome back</p>
+            <h2 class="fw-bold">Hi {{ request.user.username }}, your coaching dashboard.</h2>
+            <p class="text-muted mb-0">Review performance, continue sessions, and level up with resume-driven insights.</p>
+        </div>
+        <a href="{% url 'new_session' %}" class="btn btn-primary btn-lg glow-button">+ New Interview</a>
+    </div>
 
-    <!-- Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card p-4 text-center">
-                <div class="display-5 fw-bold text-primary">{{ completed_count }}</div>
+    <div class="row g-4 mb-4 stats-grid">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card glass-card p-4 text-center">
+                <div class="display-5 fw-bold text-primary"><span class="countup" data-target="{{ completed_count }}">{{ completed_count }}</span></div>
                 <small class="text-muted">Sessions Completed</small>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card p-4 text-center">
-                <div class="display-5 fw-bold text-success">{{ avg_score }}</div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card glass-card p-4 text-center">
+                <div class="display-5 fw-bold text-success"><span class="countup" data-target="{{ avg_score }}">{{ avg_score }}</span></div>
                 <small class="text-muted">Average Score</small>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card p-4 text-center">
-                <div class="display-5 fw-bold text-warning">{{ xp_points }}</div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card glass-card p-4 text-center">
+                <div class="display-5 fw-bold text-warning"><span id="xp-points" class="countup" data-target="{{ xp_points }}">{{ xp_points }}</span></div>
                 <small class="text-muted">XP Points</small>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card p-4 text-center">
-                <div class="display-5 fw-bold text-danger">{{ streak }}</div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card glass-card p-4 text-center">
+                <div class="display-5 fw-bold text-danger"><span class="countup" data-target="{{ streak }}">{{ streak }}</span></div>
                 <small class="text-muted">Day Streak 🔥</small>
             </div>
         </div>
     </div>
 
-    <!-- Daily Challenge Banner -->
-<div class="card p-3 mb-4"
-     style="background: linear-gradient(135deg, #f093fb, #f5576c); border: none;">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h6 class="text-white fw-bold mb-1">🎯 Daily Challenge Available!</h6>
-            <small class="text-white-50">Answer today's question and earn +25 XP</small>
+    <div class="card glass-card p-4 mb-4 text-white" style="background: linear-gradient(135deg, rgba(78,84,200,0.92), rgba(124,58,237,0.92));">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div>
+                <h5 class="fw-bold mb-1">🎯 Today’s Challenge</h5>
+                <p class="text-white-75 mb-0">Answer today's curated question and earn +25 XP.</p>
+            </div>
+            <a href="{% url 'daily_challenge' %}" class="btn btn-light btn-sm btn-lg">Take Challenge →</a>
         </div>
-        <a href="{% url 'daily_challenge' %}" class="btn btn-light btn-sm fw-bold">
-            Take Challenge →
-        </a>
     </div>
-</div>
 
-    <!-- Score Chart -->
     {% if chart_scores %}
-    <div class="card p-4 mb-4">
+    <div class="card glass-card p-4 mb-4 chart-card">
         <h5 class="fw-bold mb-3">📈 Score Progress</h5>
         <canvas id="scoreChart" height="100" role="img" aria-label="Score Progress Chart"></canvas>
     </div>
     {% endif %}
 
-    <div class="row">
-        <!-- Recent Sessions -->
-        <div class="col-md-8">
+    <div class="row g-4">
+        <div class="col-lg-8">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold">Recent Sessions</h5>
-                <a href="{% url 'new_session' %}" class="btn btn-primary btn-sm">
-                    + New Session
-                </a>
+                <a href="{% url 'new_session' %}" class="btn btn-outline-light btn-sm">New Session</a>
             </div>
 
             {% for session in sessions %}
-                <div class="card p-3 mb-3">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="card glass-card p-3 mb-3" data-aos="fade-up">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                         <div>
                             <h6 class="fw-bold mb-1">{{ session.job_title }}</h6>
-                            <small class="text-muted">
-                                {{ session.company|default:"General" }} ·
-                                {{ session.get_mode_display }} ·
-                                {{ session.created_at|date:"M d, Y" }}
-                            </small>
+                            <small class="text-muted">{{ session.company|default:"General" }} · {{ session.get_mode_display }} · {{ session.created_at|date:"M d, Y" }}</small>
                         </div>
                         <div class="text-end">
                             {% if session.status == 'completed' %}
-                                <span class="badge
-                                    {% if session.overall_score >= 8 %}bg-success
-                                    {% elif session.overall_score >= 6 %}bg-warning text-dark
-                                    {% else %}bg-danger{% endif %} mb-1">
-                                    {{ session.overall_score }}/10
-                                </span>
+                                <span class="badge {% if session.overall_score >= 8 %}bg-success{% elif session.overall_score >= 6 %}bg-warning text-dark{% else %}bg-danger{% endif %} mb-2">{{ session.overall_score }}/10</span>
                                 <br>
-                                <a href="{% url 'session_results' session.id %}"
-                                   class="btn btn-outline-primary btn-sm">
-                                    View Results
-                                </a>
+                                <a href="{% url 'session_results' session.id %}" class="btn btn-outline-primary btn-sm">View Results</a>
                             {% else %}
-                                <span class="badge bg-info mb-1">In Progress</span>
+                                <span class="badge bg-info mb-2">In Progress</span>
                                 <br>
-                                <a href="{% url 'interview_room' session.id %}"
-                                   class="btn btn-primary btn-sm">
-                                    Continue
-                                </a>
+                                <a href="{% url 'interview_room' session.id %}" class="btn btn-primary btn-sm">Continue</a>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <div class="text-center py-5">
-                    <h5 class="text-muted">No sessions yet!</h5>
-                    <a href="{% url 'new_session' %}" class="btn btn-primary mt-2">
-                        Start Your First Interview
-                    </a>
+                <div class="card glass-card p-5 text-center" data-aos="fade-up">
+                    <h5 class="fw-bold mb-2">No sessions yet.</h5>
+                    <p class="text-muted mb-3">Launch your first interview to start earning XP and badges.</p>
+                    <a href="{% url 'new_session' %}" class="btn btn-primary">Start Your First Interview</a>
                 </div>
             {% endfor %}
         </div>
 
-        <!-- Badges -->
-        <div class="col-md-4">
-            <h5 class="fw-bold mb-3">🏆 Badges</h5>
-            <div class="card p-3">
+        <div class="col-lg-4">
+            <div class="card glass-card p-4 mb-4" data-aos="fade-up">
+                <h5 class="fw-bold mb-3">🏆 Badges</h5>
                 {% for badge in badges %}
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="fs-3 me-3">
-                            {% if badge.name == 'first_interview' %}🎯
-                            {% elif badge.name == 'streak_7' %}🔥
-                            {% elif badge.name == 'perfect_score' %}⭐
-                            {% elif badge.name == 'speed_demon' %}⚡
-                            {% elif badge.name == 'expert' %}🏆
-                            {% endif %}
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <div class="avatar-circle fs-3 py-2">
+                            {% if badge.name == 'first_interview' %}🎯{% elif badge.name == 'streak_7' %}🔥{% elif badge.name == 'perfect_score' %}⭐{% elif badge.name == 'speed_demon' %}⚡{% elif badge.name == 'expert' %}🏆{% endif %}
                         </div>
                         <div>
-                            <p class="fw-bold mb-0">{{ badge.get_name_display }}</p>
-                            <small class="text-muted">
-                                Earned {{ badge.earned_at|date:"M d, Y" }}
-                            </small>
+                            <p class="fw-bold mb-1">{{ badge.get_name_display }}</p>
+                            <small class="text-muted">Earned {{ badge.earned_at|date:"M d, Y" }}</small>
                         </div>
                     </div>
                 {% empty %}
-                    <p class="text-muted text-center">
-                        Complete your first interview to earn badges!
-                    </p>
+                    <p class="text-muted text-center mb-0">Complete your first interview to earn badges!</p>
                 {% endfor %}
             </div>
-
-            <!-- Quick Start -->
-            <div class="card p-3 mt-3 text-center"
-                 style="background: linear-gradient(135deg, #4e54c8, #8f94fb);">
-                <h6 class="text-white fw-bold">Ready to Practice?</h6>
-                <p class="text-white small">Start a new interview session now</p>
-                <a href="{% url 'new_session' %}" class="btn btn-light btn-sm">
-                    🎯 Start Now
-                </a>
+            <div class="card glass-card p-4 text-center" data-aos="fade-up">
+                <h6 class="fw-bold mb-2">Need inspiration?</h6>
+                <p class="text-muted mb-3">Try the daily challenge or practice voice interviews for a full experience.</p>
+                <a href="{% url 'daily_challenge' %}" class="btn btn-outline-light btn-sm mb-2">Daily Challenge</a>
+                <a href="{% url 'voice_interview_setup' %}" class="btn btn-primary btn-sm">Voice Interview</a>
             </div>
         </div>
     </div>
@@ -152,7 +120,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         {% if chart_scores %}
-        const ctx = document.getElementById('scoreChart').getContext('2d')
+        const ctx = document.getElementById('scoreChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -161,12 +129,12 @@
                     label: 'Interview Score',
                     data: {{ chart_scores|safe }},
                     borderColor: '#4e54c8',
-                    backgroundColor: 'rgba(78, 84, 200, 0.1)',
+                    backgroundColor: 'rgba(78, 84, 200, 0.12)',
                     borderWidth: 3,
                     pointBackgroundColor: '#4e54c8',
                     pointRadius: 6,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.35
                 }]
             },
             options: {
@@ -192,7 +160,7 @@
                     }
                 }
             }
-        })
+        });
         {% endif %}
     </script>
 

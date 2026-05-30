@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Voice Interview Results{% endblock %}
+
+{% block content %}
+    <section class="py-5">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary mb-3">Voice Interview Results</span>
+            <h2 class="fw-bold mb-2">🎤 Voice Interview Complete!</h2>
+            <p class="text-muted">{{ interview.job_title }}</p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5 voice-results-grid">
+            <div class="col">
+                <div class="card glass-card p-4 text-center h-100 score-card">
+                    <div class="display-4 fw-bold {% if interview.overall_score >= 8 %}text-success{% elif interview.overall_score >= 6 %}text-warning{% else %}text-danger{% endif %}">{{ interview.overall_score }}/10</div>
+                    <small class="text-muted">Overall Score</small>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card glass-card p-4 text-center h-100 score-card">
+                    <div class="display-4 fw-bold text-primary">{{ interview.communication_score }}/10</div>
+                    <small class="text-muted">Communication</small>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card glass-card p-4 text-center h-100 score-card">
+                    <div class="display-4 fw-bold text-info">{% if interview.duration_seconds %}{{ interview.duration_seconds|floatformat:0 }}s{% else %}N/A{% endif %}</div>
+                    <small class="text-muted">Duration</small>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="fw-bold mb-4">📝 Interview Transcript & Feedback</h4>
+        {% for answer in answers %}
+            <div class="card glass-card p-4 mb-4" data-aos="fade-up">
+                <div class="d-flex justify-content-between align-items-start mb-3 flex-column flex-md-row gap-3">
+                    <div class="flex-grow-1">
+                        <span class="badge bg-primary mb-2">Question {{ answer.order }}</span>
+                        <h6 class="fw-bold mb-2">{{ answer.question_text }}</h6>
+                    </div>
+                    <div class="score-badge ms-3 {% if answer.ai_score >= 8 %}bg-success text-white{% elif answer.ai_score >= 6 %}bg-warning text-dark{% else %}bg-danger text-white{% endif %}">{{ answer.ai_score }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted fw-bold">YOUR ANSWER:</small>
+                    <p class="mt-2 feedback-text">{{ answer.answer_text }}</p>
+                    {% if answer.filler_word_count > 0 %}
+                        <small class="text-danger">⚠️ {{ answer.filler_word_count }} filler words detected</small>
+                    {% endif %}
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    <div class="col">
+                        <div class="card small-card p-3 h-100">
+                            <small class="text-primary fw-bold">🤖 AI FEEDBACK:</small>
+                            <p class="mt-2 mb-0 feedback-text">{{ answer.ai_feedback }}</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card small-card p-3 h-100">
+                            <small class="text-success fw-bold">✅ IDEAL ANSWER:</small>
+                            <p class="mt-2 mb-0 feedback-text">{{ answer.ideal_answer }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="d-grid gap-3 d-sm-flex justify-content-center align-items-center mt-4 mb-5 voice-results-actions">
+            <a href="{% url 'voice_interview_setup' %}" class="btn btn-primary btn-lg w-100 w-sm-auto glow-button">🎤 Practice Again</a>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg w-100 w-sm-auto">📊 Dashboard</a>
+        </div>
+
+        <style>
+            .voice-results-grid .score-card { min-height: 180px; }
+            .score-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 58px; min-height: 58px; border-radius: 18px; font-size: 1rem; padding: 0.7rem 1rem; }
+            .voice-results-actions .btn { min-height: 56px; }
+            @media (max-width: 575.98px) {
+                .voice-results-actions { display: grid !important; }
+                .voice-results-actions .btn { width: 100%; }
+            }
+        </style>
+    </section>
+{% endblock %}

@@ -2,54 +2,50 @@
 {% block title %}New Interview Session{% endblock %}
 
 {% block content %}
-    <div class="card mx-auto p-4" style="max-width: 600px;">
-        <h3 class="fw-bold mb-4">🎯 Start New Interview</h3>
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="newsession-job-title" class="form-label fw-bold">Job Title *</label>
-                <input id="newsession-job-title" type="text" name="job_title" class="form-control"
-                       placeholder="e.g. Python Developer, Data Scientist, Product Manager"
-                       required>
-            </div>
+    <section class="py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card glass-card p-4 p-lg-5 tilt" data-aos="fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <p class="text-primary text-uppercase mb-2">New Practice Session</p>
+                            <h3 class="fw-bold mb-1">Start Your Next Interview</h3>
+                        </div>
+                        <span class="pill-status pill-success">Fast setup</span>
+                    </div>
+                    <p class="text-muted mb-4">Create a tailored mock interview session to practice for the exact role and company you're targeting.</p>
+                    <form method="POST" class="form-animated">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="newsession-job-title" class="form-label fw-bold">Job Title *</label>
+                            <input id="newsession-job-title" type="text" name="job_title" class="form-control" placeholder="e.g. Python Developer, Data Scientist, Product Manager" required>
+                        </div>
             <div class="mb-3">
                 <label for="newsession-company" class="form-label fw-bold">Company (optional)</label>
-                <input id="newsession-company" type="text" name="company" class="form-control"
-                       placeholder="e.g. Google, Amazon, Microsoft">
-                <small class="text-muted">Questions will be tailored to this company's style</small>
+                <input id="newsession-company" type="text" name="company" class="form-control" placeholder="e.g. Google, Amazon, Microsoft">
+                <small class="text-muted">Questions will be tailored to this company's hiring style.</small>
             </div>
             <fieldset class="mb-4">
                 <legend class="form-label fw-bold">Interview Mode</legend>
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <input type="radio" class="btn-check" name="mode"
-                               id="quick" value="quick" checked>
-                        <label class="btn btn-outline-primary w-100" for="quick">
-                            ⚡ Quick<br>
-                            <small>5 questions</small>
-                        </label>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="mode" id="quick" value="quick" checked>
+                        <label class="btn btn-outline-primary w-100 py-3" for="quick">⚡ Quick<br><small>5 questions</small></label>
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <input type="radio" class="btn-check" name="mode"
-                               id="full" value="full">
-                        <label class="btn btn-outline-primary w-100" for="full">
-                            📋 Full<br>
-                            <small>10 questions</small>
-                        </label>
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="mode" id="full" value="full">
+                        <label class="btn btn-outline-primary w-100 py-3" for="full">📋 Full<br><small>10 questions</small></label>
                     </div>
-                    <div class="col-md-4 mb-2">
-                        <input type="radio" class="btn-check" name="mode"
-                               id="custom" value="custom">
-                        <label class="btn btn-outline-primary w-100" for="custom">
-                            ⚙️ Custom<br>
-                            <small>7 questions</small>
-                        </label>
+                    <div class="col-md-4">
+                        <input type="radio" class="btn-check" name="mode" id="custom" value="custom">
+                        <label class="btn btn-outline-primary w-100 py-3" for="custom">⚙️ Custom<br><small>7 questions</small></label>
                     </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 btn-lg">
-                Generate Questions 🤖
-            </button>
+            </fieldset>
+            <button type="submit" class="btn btn-primary w-100 btn-lg glow-button">Generate Questions 🤖</button>
         </form>
+                </div>
+        </div>
     </div>
+</section>
 {% endblock %}

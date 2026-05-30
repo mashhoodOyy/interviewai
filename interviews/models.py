@@ -109,3 +109,30 @@ class DailyChallengeAnswer(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.challenge.date}"
+
+class VoiceInterview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    job_title = models.CharField(max_length=200)
+    status = models.CharField(max_length=20, default='in_progress')
+    overall_score = models.FloatField(null=True, blank=True)
+    communication_score = models.FloatField(null=True, blank=True)
+    duration_seconds = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - Voice Interview - {self.created_at}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class VoiceAnswer(models.Model):
+    interview = models.ForeignKey(VoiceInterview, on_delete=models.CASCADE, related_name='answers')
+    question_text = models.TextField()
+    answer_text = models.TextField()
+    ai_score = models.FloatField(null=True, blank=True)
+    ai_feedback = models.TextField(blank=True)
+    filler_word_count = models.IntegerField(default=0)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']

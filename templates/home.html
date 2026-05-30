@@ -3,85 +3,129 @@
 {% block title %}InterviewAI - Ace Your Next Interview{% endblock %}
 
 {% block content %}
-    <!-- Hero -->
-    <div class="p-5 mb-5 rounded-3 text-white text-center"
-         style="background: linear-gradient(135deg, #1a1a2e, #4e54c8);">
-        <h1 class="display-4 fw-bold">Ace Your Next Interview</h1>
-        <p class="lead mt-3">
-            Practice with AI-powered mock interviews, get instant feedback,
-            and track your progress
-        </p>
-        <div class="mt-4">
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'new_session' %}" class="btn btn-warning btn-lg me-3">
-                    🎯 Start Practice
-                </a>
-                <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-lg">
-                    📊 Dashboard
-                </a>
-            {% else %}
-                <a href="{% url 'signup' %}" class="btn btn-warning btn-lg me-3">
-                    🚀 Get Started Free
-                </a>
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
-                    Login
-                </a>
-            {% endif %}
+    <section class="hero-full hero-gradient text-white text-center" role="banner" aria-label="Homepage hero">
+        <div class="container position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <div class="mb-4 text-uppercase text-primary fw-bold">AI Interview Training</div>
+                    <h1 class="hero-title fw-bold">Train smarter. Interview stronger.</h1>
+                    <p class="hero-subtitle mx-auto">Practice with tailored mock interviews, speech-driven voice coaching, and instant AI feedback so you can land your next offer with confidence.</p>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 hero-actions mt-4">
+                        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg button-pill">Start Free Trial</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg button-pill">Already a member</a>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mt-5">
+                        <span class="chip"><i class="fa-solid fa-bolt"></i> 1000+ questions</span>
+                        <span class="chip"><i class="fa-solid fa-chart-line"></i> Real-time scoring</span>
+                        <span class="chip"><i class="fa-solid fa-headset"></i> Voice interviews</span>
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1" data-aos="zoom-in">
+                    <div class="card glass-card p-4 shadow-lg">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <p class="text-muted mb-1">Next practice session</p>
+                                <h4 class="fw-bold mb-0">Product Manager Interview</h4>
+                            </div>
+                            <div class="pill-status pill-success">Live</div>
+                        </div>
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Progress</h6>
+                            <div class="progress-large mb-2"><div class="progress-bar progress-bar-striped progress-bar-animated progress-green" style="width: 72%"></div></div>
+                            <div class="d-flex justify-content-between text-muted small"><span>72% complete</span><span>4/6 questions</span></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-muted mb-1">Avg. Score</p>
+                                <h3 class="fw-bold mb-0">8.6 / 10</h3>
+                            </div>
+                            <div class="scroll-indicator" aria-hidden="true">
+                                <i class="fa-solid fa-angle-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Features -->
-    <h3 class="text-center fw-bold mb-4">Why InterviewAI?</h3>
-    <div class="row mb-5">
-        <div class="col-md-4 mb-4">
-            <div class="card p-4 text-center h-100">
-                <div class="display-4 mb-3">🤖</div>
-                <h5 class="fw-bold">AI-Powered Questions</h5>
-                <p class="text-muted">Get real interview questions tailored to your specific job title and company</p>
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center section-title mb-5">
+                <p class="text-primary text-uppercase fw-bold mb-2">Modern interview coaching</p>
+                <h2 class="fw-bold">Everything you need to prepare like a pro</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card glass-card p-4 h-100">
+                        <div class="display-5 mb-3">🤖</div>
+                        <h5 class="fw-bold">Adaptive AI prompts</h5>
+                        <p class="text-muted">Experience questions engineered for your role, company and skill level.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card glass-card p-4 h-100">
+                        <div class="display-5 mb-3">🎙️</div>
+                        <h5 class="fw-bold">Voice practice</h5>
+                        <p class="text-muted">Speak naturally and get live coaching feedback with our voice interview flow.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card glass-card p-4 h-100">
+                        <div class="display-5 mb-3">📈</div>
+                        <h5 class="fw-bold">Progress tracking</h5>
+                        <p class="text-muted">Monitor your scores, streaks and resume optimization in one dashboard.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card p-4 text-center h-100">
-                <div class="display-4 mb-3">📊</div>
-                <h5 class="fw-bold">Instant Scoring</h5>
-                <p class="text-muted">Get scored 0-10 on every answer with detailed feedback and improvement tips</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card p-4 text-center h-100">
-                <div class="display-4 mb-3">🏆</div>
-                <h5 class="fw-bold">Track Progress</h5>
-                <p class="text-muted">See your improvement over time, earn badges and build your streak</p>
-            </div>
-        </div>
-    </div>
+    </section>
 
-    <!-- How it works -->
-    <h3 class="text-center fw-bold mb-4">How It Works</h3>
-    <div class="row mb-5">
-        <div class="col-md-3 text-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:60px;height:60px;font-size:24px;font-weight:700;">1</div>
-            <h6 class="fw-bold">Enter Job Details</h6>
-            <p class="text-muted small">Tell us the role and company you're interviewing for</p>
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-5" data-aos="fade-right">
+                    <div class="card highlight-card p-4">
+                        <span class="badge bg-primary mb-3">Feature highlight</span>
+                        <h3 class="fw-bold">Practice in minutes, improve every day.</h3>
+                        <p class="text-muted">InterviewAI gives you a polished training routine, so every session feels professional and motivating.</p>
+                        <div class="mt-4">
+                            <div class="d-flex align-items-center mb-3"><div class="pulse-dot me-3"></div><span>Instant answer scoring</span></div>
+                            <div class="d-flex align-items-center mb-3"><div class="pulse-dot me-3"></div><span>Resume strengths analysis</span></div>
+                            <div class="d-flex align-items-center"><div class="pulse-dot me-3"></div><span>Personalized growth tips</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7" data-aos="fade-left">
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="col">
+                            <div class="card glass-card p-4">
+                                <h5 class="fw-bold">Trusted by learners</h5>
+                                <p class="text-muted mb-0">Build confidence with iterative practice and detailed diagnostics.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card glass-card p-4">
+                                <h5 class="fw-bold">Score transparency</h5>
+                                <p class="text-muted mb-0">Understand where you excel and what to focus on next.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card glass-card p-4">
+                                <h5 class="fw-bold">Voice-ready</h5>
+                                <p class="text-muted mb-0">Perfect your delivery with AI voice prompts and transcript analysis.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card glass-card p-4">
+                                <h5 class="fw-bold">Resume synergy</h5>
+                                <p class="text-muted mb-0">Align your resume with your target job and get better interview matches.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-3 text-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:60px;height:60px;font-size:24px;font-weight:700;">2</div>
-            <h6 class="fw-bold">Get AI Questions</h6>
-            <p class="text-muted small">AI generates real interview questions for your specific role</p>
-        </div>
-        <div class="col-md-3 text-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:60px;height:60px;font-size:24px;font-weight:700;">3</div>
-            <h6 class="fw-bold">Answer Questions</h6>
-            <p class="text-muted small">Type your answers just like a real interview</p>
-        </div>
-        <div class="col-md-3 text-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                 style="width:60px;height:60px;font-size:24px;font-weight:700;">4</div>
-            <h6 class="fw-bold">Get Feedback</h6>
-            <p class="text-muted small">Receive instant AI feedback, score and improvement tips</p>
-        </div>
-    </div>
+    </section>
 {% endblock %}

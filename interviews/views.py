@@ -3,6 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import InterviewSession, Question, Answer, Badge
 from .ai_service import generate_questions, score_answer
+import json as json_module
+from .models import VoiceInterview, VoiceAnswer
+from .ai_service import generate_voice_questions, generate_voice_report
+from django.http import JsonResponse
 
 def home(request):
     return render(request, 'home.html')
@@ -207,4 +211,149 @@ def daily_challenge(request):
         'challenge': challenge,
         'existing_answer': existing_answer,
         'today': today,
+    })
+
+
+
+@login_required
+def voice_interview_setup(request):
+    if request.method == 'POST':
+        job_title = request.POST.get('job_title', '')
+
+        # get resume text if available
+        resume_text = ''
+        if request.user.resume:
+            try:
+                import PyPDF2
+                import io
+                with request.user.resume.open('rb') as f:
+                    pdf_reader = PyPDF2.PdfReader(f)
+                    for page in pdf_reader.pages:
+                        text = page.extract_text()
+                        if text:
+                            resume_text += text
+            except:
+                pass
+
+        # generate questions
+        try:
+            questions = generate_voice_questions(
+                job_title,
+                resume_text,
+                request.user.experience_level
+            )
+
+            # create voice interview session
+            interview = VoiceInterview.objects.create(
+                user=request.user,
+                job_title=job_title
+            )
+
+            # store questions in session
+            request.session['voice_questions'] = questions
+            request.session['voice_interview_id'] = interview.id
+
+            return redirect('voice_interview_room', interview_id=interview.id)
+
+        except Exception as e:
+            messages.error(request, f'Failed to generate questions: {str(e)}')
+
+    return render(request, 'interviews/voice_setup.html')
+
+
+@login_required
+def voice_interview_room(request, interview_id):
+    interview = get_object_or_404(VoiceInterview, id=interview_id, user=request.user)
+    questions = request.session.get('voice_questions', [])
+
+    if not questions:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('voice_interview_setup')
+
+    return render(request, 'interviews/voice_room.html', {
+        'interview': interview,
+        'questions_json': json_module.dumps(questions),
+    })
+
+
+@login_required
+def voice_interview_submit(request, interview_id):
+    if request.method == 'POST':
+        interview = get_object_or_404(VoiceInterview, id=interview_id, user=request.user)
+
+        data = json_module.loads(request.body)
+        answers_data = data.get('answers', [])
+        duration = data.get('duration', 0)
+
+        # score each answer and save
+        total_score = 0
+        total_filler = 0
+        saved_answers = []
+
+        for i, item in enumerate(answers_data):
+            try:
+                result = score_answer(
+                    item['question'],
+                    item['answer'],
+                    interview.job_title,
+                    request.user.experience_level
+                )
+
+                VoiceAnswer.objects.create(
+                    interview=interview,
+                    question_text=item['question'],
+                    answer_text=item['answer'],
+                    ai_score=result['score'],
+                    ai_feedback=result['feedback'],
+                    filler_word_count=result['filler_word_count'],
+                    order=i + 1
+                )
+
+                total_score += result['score']
+                total_filler += result['filler_word_count']
+                saved_answers.append({
+                    'question': item['question'],
+                    'answer': item['answer'],
+                    'score': result['score']
+                })
+
+            except Exception as e:
+                print(f"Error scoring answer: {e}")
+
+        # generate full report
+        try:
+            report = generate_voice_report(interview.job_title, saved_answers)
+            interview.overall_score = report['overall_score']
+            interview.communication_score = report['communication_score']
+            interview.duration_seconds = duration
+            interview.status = 'completed'
+            interview.save()
+
+            # award XP
+            request.user.xp_points += 150
+            request.user.save()
+
+            # clear session
+            if 'voice_questions' in request.session:
+                del request.session['voice_questions']
+
+            return JsonResponse({
+                'success': True,
+                'redirect': f'/voice-interview/{interview_id}/results/'
+            })
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False})
+
+
+@login_required
+def voice_interview_results(request, interview_id):
+    interview = get_object_or_404(VoiceInterview, id=interview_id, user=request.user)
+    answers = VoiceAnswer.objects.filter(interview=interview)
+
+    return render(request, 'interviews/voice_results.html', {
+        'interview': interview,
+        'answers': answers,
     })

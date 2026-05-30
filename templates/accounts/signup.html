@@ -2,39 +2,63 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-    <div class="card mx-auto p-4" style="max-width: 450px;">
-        <h3 class="text-center fw-bold mb-4">Create Account 🚀</h3>
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="signup-username" class="form-label">Username</label>
-                <input id="signup-username" type="text" name="username" class="form-control" required>
+<section class="two-column-auth">
+    <div class="container auth-box shadow-lg">
+        <div class="row g-0">
+            <div class="col-lg-5 auth-left d-flex flex-column justify-content-center">
+                <div>
+                    <p class="text-uppercase fw-bold mb-3">Ready to level up?</p>
+                    <h2 class="fw-bold mb-4">Create your InterviewAI account</h2>
+                    <p class="mb-4 text-white-75">Practice with AI-powered interviews, improve your delivery, and get resume-driven suggestions.</p>
+                    <div class="auth-feature d-flex align-items-start mb-3">
+                        <i class="fa-solid fa-robot"></i>
+                        <div>
+                            <strong>AI-guided coaching</strong>
+                            <p class="mb-0 text-white-75">Question generation and scoring built for your career goals.</p>
+                        </div>
+                    </div>
+                    <div class="auth-feature d-flex align-items-start">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <div>
+                            <strong>Track progress</strong>
+                            <p class="mb-0 text-white-75">See scores, streaks, and growth over time.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="signup-email" class="form-label">Email</label>
-                <input id="signup-email" type="email" name="email" class="form-control" required>
+            <div class="col-lg-7 auth-right p-4 p-lg-5">
+                <h3 class="fw-bold mb-3">Create Account 🚀</h3>
+                <form method="POST" class="form-animated">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="signup-username" class="form-label">Username</label>
+                        <input id="signup-username" type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-email" class="form-label">Email</label>
+                        <input id="signup-email" type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-password" class="form-label">Password</label>
+                        <input id="signup-password" type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-target-role" class="form-label">Target Job Role</label>
+                        <input id="signup-target-role" type="text" name="target_role" class="form-control" placeholder="e.g. Python Developer, Data Scientist">
+                    </div>
+                    <div class="mb-3">
+                        <label for="signup-experience-level" class="form-label">Experience Level</label>
+                        <select id="signup-experience-level" name="experience_level" class="form-select">
+                            <option value="entry">Entry Level (0-2 years)</option>
+                            <option value="mid">Mid Level (2-5 years)</option>
+                            <option value="senior">Senior Level (5+ years)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg glow-button">Create Account</button>
+                </form>
+                <p class="text-center mt-4 auth-note">Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </div>
-            <div class="mb-3">
-                <label for="signup-password" class="form-label">Password</label>
-                <input id="signup-password" type="password" name="password" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="signup-target-role" class="form-label">Target Job Role</label>
-                <input id="signup-target-role" type="text" name="target_role" class="form-control"
-                       placeholder="e.g. Python Developer, Data Scientist">
-            </div>
-            <div class="mb-3">
-                <label for="signup-experience-level" class="form-label">Experience Level</label>
-                <select id="signup-experience-level" name="experience_level" class="form-select">
-                    <option value="entry">Entry Level (0-2 years)</option>
-                    <option value="mid">Mid Level (2-5 years)</option>
-                    <option value="senior">Senior Level (5+ years)</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Create Account</button>
-        </form>
-        <p class="text-center mt-3">
-            Already have an account? <a href="{% url 'login' %}">Login</a>
-        </p>
+        </div>
     </div>
+</section>
 {% endblock %}
