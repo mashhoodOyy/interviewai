@@ -6,7 +6,8 @@ from .ai_service import generate_questions, score_answer
 import json as json_module
 from .models import VoiceInterview, VoiceAnswer
 from .ai_service import generate_voice_questions, generate_voice_report
-from django.http import JsonResponse
+
+
 
 def home(request):
     return render(request, 'home.html')
@@ -148,9 +149,7 @@ def session_results(request, session_id):
         'answers': answers,
     })
 
-from datetime import date
-from .models import DailyChallenge, DailyChallengeAnswer
-from .ai_service import generate_daily_question
+
 
 @login_required
 def daily_challenge(request):

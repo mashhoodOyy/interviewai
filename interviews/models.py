@@ -131,6 +131,7 @@ class VoiceAnswer(models.Model):
     answer_text = models.TextField()
     ai_score = models.FloatField(null=True, blank=True)
     ai_feedback = models.TextField(blank=True)
+    ideal_answer = models.TextField(blank=True)  # ← add this
     filler_word_count = models.IntegerField(default=0)
     order = models.IntegerField(default=0)
 
