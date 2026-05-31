@@ -1,4 +1,5 @@
 import json
+import random
 from groq import Groq
 from django.conf import settings
 
@@ -46,23 +47,33 @@ Difficulty must be one of: easy, medium, hard"""
 
 
 def score_answer(question_text, answer_text, job_title, experience_level):
-    prompt = f"""You are an expert interview coach. Evaluate this interview answer.
+    prompt = f"""You are a strict expert interview coach. Evaluate this interview answer honestly.
 
 Job Title: {job_title}
 Experience Level: {experience_level}
 Question: {question_text}
 Answer: {answer_text}
 
+Scoring rules:
+- Score 0-2: Answer is completely wrong, irrelevant, or empty
+- Score 3-4: Answer is weak, vague, or misses the point
+- Score 5-6: Answer is average, partially correct but lacks depth
+- Score 7-8: Answer is good, clear and relevant
+- Score 9-10: Answer is excellent, detailed and impressive
+
+Be STRICT and HONEST. Do not give high scores for bad answers.
+If the answer is short, vague or wrong give a LOW score.
+
 Return ONLY this JSON, no other text, no markdown, no backticks:
 {{
-    "score": 7.5,
+    "score": 0,
     "feedback": "Overall feedback here",
     "improvement_tips": "Specific tips to improve",
     "ideal_answer": "What a great answer would look like",
-    "filler_word_count": 2
+    "filler_word_count": 0
 }}
 
-Score must be between 0 and 10.
+Score must be between 0 and 10 as a number.
 filler_word_count is how many filler words (um, uh, like, you know, basically) appear in the answer."""
 
     response = client.chat.completions.create(
@@ -70,7 +81,7 @@ filler_word_count is how many filler words (um, uh, like, you know, basically) a
         messages=[
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3,
+        temperature=0.1,
         max_tokens=1000,
     )
 
@@ -139,10 +150,22 @@ Return ONLY this JSON, no other text, no markdown, no backticks:
     return result
 
 def generate_voice_questions(job_title, resume_text, experience_level):
+    session_id = random.randint(1000, 9999)
+    focus_area = random.choice([
+        "problem solving",
+        "leadership",
+        "creativity",
+        "communication",
+        "teamwork",
+        "innovation"
+    ])
+
     prompt = f"""You are a professional interviewer conducting a voice interview.
 
+Session ID: {session_id}
 Job Title: {job_title}
 Experience Level: {experience_level}
+Focus Area: {focus_area}
 Resume: {resume_text[:2000] if resume_text else 'Not provided'}
 
 Generate exactly 6 interview questions in this order:
@@ -150,8 +173,10 @@ Generate exactly 6 interview questions in this order:
 2. Resume specific question (based on their experience)
 3. Technical/Skills question
 4. Behavioral question
-5. Situational question  
+5. Situational question
 6. Closing question (Why this role/future goals)
+
+Make sure these questions are different from typical standard questions. Be creative and specific.
 
 Return ONLY this JSON, no other text, no markdown, no backticks:
 [
@@ -166,7 +191,7 @@ Return ONLY this JSON, no other text, no markdown, no backticks:
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=0.9,
         max_tokens=1000,
     )
 

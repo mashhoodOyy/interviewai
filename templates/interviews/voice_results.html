@@ -59,7 +59,13 @@
                     <div class="col">
                         <div class="card small-card p-3 h-100">
                             <small class="text-success fw-bold">✅ IDEAL ANSWER:</small>
-                            <p class="mt-2 mb-0 feedback-text">{{ answer.ideal_answer }}</p>
+                            <p class="mt-2 mb-0 feedback-text" style="color: #e2e8f0;">
+                                {% if answer.ideal_answer %}
+                                    {{ answer.ideal_answer }}
+                                {% else %}
+                                    Not available
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                 </div>

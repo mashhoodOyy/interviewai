@@ -262,14 +262,63 @@
         });
     }
 
+    function showSubmissionOverlay(message) {
+        let overlay = document.getElementById('voiceLoadingOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'voiceLoadingOverlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '9999';
+            overlay.style.background = 'rgba(0, 0, 0, 0.65)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.padding = '1.5rem';
+            overlay.style.boxSizing = 'border-box';
+            overlay.innerHTML = `
+                <div style="max-width: 520px; width: 100%; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 2rem; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.24);">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳ Processing your results...</div>
+                    <p id="voiceLoadingMessage" style="margin: 0; font-size: 1.05rem; color: #333;">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        } else {
+            const messageEl = document.getElementById('voiceLoadingMessage');
+            if (messageEl) messageEl.textContent = message;
+            overlay.style.display = 'flex';
+        }
+    }
+
+    function disableSubmitButtons() {
+        ['pauseBtn', 'endBtn'].forEach(id => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.disabled = true;
+                button.classList.add('disabled');
+            }
+        });
+    }
+
     function finishInterview() {
         stopListening();
         window.speechSynthesis.cancel();
+        disableSubmitButtons();
+        showSubmissionOverlay('Analyzing your responses... This may take 30-60 seconds.');
 
         speak("Thank you for completing the interview. I am now analyzing your responses. Please wait.", () => {
             const duration = Math.floor((Date.now() - startTime) / 1000);
-            document.getElementById('questionText').textContent = 'Analyzing your interview... Please wait ⏳';
-            document.getElementById('listeningStatus').textContent = 'Generating your report...';
+            document.getElementById('questionText').textContent = 'Processing your results...';
+            document.getElementById('listeningStatus').textContent = 'Analyzing your responses... This may take 30-60 seconds';
+
+            const fallbackRedirect = `/voice-interview/${interviewId}/results/`;
+            const timeoutId = setTimeout(() => {
+                console.warn('Voice interview submit timed out. Redirecting anyway.');
+                window.location.href = fallbackRedirect;
+            }, 60000);
 
             fetch(`/voice-interview/${interviewId}/submit/`, {
                 method: 'POST',
@@ -281,11 +330,15 @@
             })
             .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert('Error generating report. Please try again.');
-                }
+                const redirectUrl = (data && data.redirect) ? data.redirect : fallbackRedirect;
+                window.location.href = redirectUrl;
+            })
+            .catch(error => {
+                console.error('Voice interview submit error:', error);
+                window.location.href = fallbackRedirect;
+            })
+            .finally(() => {
+                clearTimeout(timeoutId);
             });
         });
     }

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import InterviewSession, Question, Answer, Badge
 from .ai_service import generate_questions, score_answer
 import json as json_module
@@ -277,74 +278,109 @@ def voice_interview_room(request, interview_id):
 
 @login_required
 def voice_interview_submit(request, interview_id):
-    if request.method == 'POST':
-        interview = get_object_or_404(VoiceInterview, id=interview_id, user=request.user)
+    interview = get_object_or_404(VoiceInterview, id=interview_id, user=request.user)
+    redirect_url = f'/voice-interview/{interview_id}/results/'
 
-        data = json_module.loads(request.body)
+    if request.method == 'POST':
+        data = {}
+        try:
+            data = json_module.loads(request.body)
+        except Exception as e:
+            print(f"Error parsing request body: {e}")
+
         answers_data = data.get('answers', [])
         duration = data.get('duration', 0)
 
         # score each answer and save
         total_score = 0
-        total_filler = 0
         saved_answers = []
+        real_answer_count = 0
 
         for i, item in enumerate(answers_data):
-            try:
-                result = score_answer(
-                    item['question'],
-                    item['answer'],
-                    interview.job_title,
-                    request.user.experience_level
-                )
+            question_text = item.get('question', '')
+            answer_text = item.get('answer', '')
+            normalized_text = answer_text.strip() if answer_text else ''
+            is_skipped = not normalized_text or normalized_text.lower() == 'skipped' or len(normalized_text) < 5
+            score = 0.0
+            filler_word_count = 0
+            ai_feedback = 'Question skipped or too short to score.' if is_skipped else 'Unable to score answer. Default score applied.'
+            ideal_answer = ''
 
-                VoiceAnswer.objects.create(
-                    interview=interview,
-                    question_text=item['question'],
-                    answer_text=item['answer'],
-                    ai_score=result['score'],
-                    ai_feedback=result['feedback'],
-                    filler_word_count=result['filler_word_count'],
-                    order=i + 1
-                )
+            if not is_skipped:
+                try:
+                    result = score_answer(
+                        question_text,
+                        answer_text,
+                        interview.job_title,
+                        request.user.experience_level
+                    )
+                    print(f"Result keys: {result.keys()}")
+                    print(f"Ideal answer: {result.get('ideal_answer', 'NOT FOUND')}")
 
-                total_score += result['score']
-                total_filler += result['filler_word_count']
-                saved_answers.append({
-                    'question': item['question'],
-                    'answer': item['answer'],
-                    'score': result['score']
-                })
+                    score = float(result.get('score', 0.0))
+                    filler_word_count = result.get('filler_word_count', 0)
+                    ai_feedback = result.get('feedback', ai_feedback)
+                    ideal_answer = result.get('ideal_answer', '')
+                except Exception as e:
+                    print(f"Error scoring answer {i + 1}: {e}")
+                    score = 0.0
+                    ideal_answer = ''
 
-            except Exception as e:
-                print(f"Error scoring answer: {e}")
+                total_score += score
+                real_answer_count += 1
+                print(f"Answer {i}: score={score}")
 
-        # generate full report
-        try:
-            report = generate_voice_report(interview.job_title, saved_answers)
-            interview.overall_score = report['overall_score']
-            interview.communication_score = report['communication_score']
-            interview.duration_seconds = duration
-            interview.status = 'completed'
-            interview.save()
-
-            # award XP
-            request.user.xp_points += 150
-            request.user.save()
-
-            # clear session
-            if 'voice_questions' in request.session:
-                del request.session['voice_questions']
-
-            return JsonResponse({
-                'success': True,
-                'redirect': f'/voice-interview/{interview_id}/results/'
+            saved_answers.append({
+                'question': question_text,
+                'answer': answer_text,
+                'score': score
             })
 
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            VoiceAnswer.objects.create(
+                interview=interview,
+                question_text=question_text,
+                answer_text=answer_text,
+                ai_score=score,
+                ai_feedback=ai_feedback,
+                filler_word_count=filler_word_count,
+                ideal_answer=ideal_answer,
+                order=i + 1
+            )
 
-    return JsonResponse({'success': False})
+        average_score = 0.0
+        if real_answer_count > 0:
+            average_score = round(total_score / real_answer_count, 1)
+        print(f"Total score: {total_score}, Real answers: {real_answer_count}, Overall: {average_score}")
+
+        # generate full report, but fallback to average score on failure
+        try:
+            report = generate_voice_report(interview.job_title, saved_answers)
+            interview.overall_score = average_score  # not report.get('overall_score')
+            interview.communication_score = report.get('communication_score', average_score)
+        except Exception as e:
+            print(f"Error generating voice report: {e}")
+            interview.overall_score = average_score
+            interview.communication_score = average_score
+
+        interview.duration_seconds = duration
+        interview.status = 'completed'
+        interview.save()
+
+        # award XP
+        request.user.xp_points += 150
+        request.user.save()
+
+        # clear session
+        if 'voice_questions' in request.session:
+            del request.session['voice_questions']
+
+    else:
+        print(f"voice_interview_submit called with non-POST method: {request.method}")
+
+    return JsonResponse({
+        'success': True,
+        'redirect': redirect_url
+    })
 
 
 @login_required

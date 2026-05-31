@@ -94,7 +94,15 @@
         .form-control { color: #e2e8f0; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
         .form-control::placeholder { color: #64748b; }
         .form-select { color: #e2e8f0; background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
-        .alert { color: #e2e8f0; }
+        .alert { color: inherit !important; }
+        .alert-success { color: #155724 !important; background-color: rgba(25, 135, 84, 0.15) !important; border-color: rgba(25, 135, 84, 0.3) !important; }
+        .alert-warning { color: #856404 !important; background-color: rgba(255, 193, 7, 0.15) !important; border-color: rgba(255, 193, 7, 0.3) !important; }
+        .alert-info { color: #055160 !important; background-color: rgba(13, 202, 240, 0.15) !important; border-color: rgba(13, 202, 240, 0.3) !important; }
+        .alert-danger { color: #842029 !important; background-color: rgba(220, 53, 69, 0.15) !important; border-color: rgba(220, 53, 69, 0.3) !important; }
+        .alert a { color: inherit !important; font-weight: bold; text-decoration: underline; }
+        .alert p { color: inherit !important; }
+        .alert small { color: inherit !important; }
+        .alert strong { color: inherit !important; }
         .badge { color: #fff !important; }
         li { color: #e2e8f0; }
         span { color: #e2e8f0; }
@@ -156,6 +164,55 @@
             .hero-full { min-height: auto; padding: 4rem 1.25rem; }
             .two-column-auth { flex-direction: column; }
             .auth-left, .auth-right { border-radius: 32px; }
+            .navbar-collapse {
+                background: rgba(15, 15, 26, 0.98);
+                border-radius: 16px;
+                padding: 16px;
+                margin-top: 10px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+                transition: max-height 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+                overflow: hidden;
+            }
+            .navbar-collapse.collapse {
+                max-height: 0;
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            .navbar-collapse.collapse.show {
+                max-height: 1200px;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .navbar-collapse .d-flex {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                width: 100%;
+                gap: 8px !important;
+            }
+            .navbar-collapse .xp-badge {
+                display: block;
+                width: 100%;
+                margin-bottom: 0;
+            }
+            .navbar-collapse .btn {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 10px 16px !important;
+                border-radius: 10px !important;
+            }
+            .navbar-collapse span,
+            .navbar-collapse .xp-badge {
+                text-align: center;
+                padding: 8px 0;
+                display: block;
+            }
+        }
+        @media (min-width: 992px) {
+            .navbar-collapse .d-flex {
+                flex-direction: row !important;
+                align-items: center !important;
+            }
         }
         @media (max-width: 767px) {
             .navbar { padding: 0.75rem 1rem; }
@@ -282,6 +339,16 @@
             }
 
             // Note: page-fade interception removed (can block navigation)
+        });
+
+        document.addEventListener('click', (event) => {
+            const collapseEl = document.getElementById('navbarSupportedContent');
+            if (!collapseEl || !collapseEl.classList.contains('show')) return;
+            const navbar = document.querySelector('.navbar');
+            if (navbar && !navbar.contains(event.target)) {
+                const bsCollapse = bootstrap.Collapse.getInstance(collapseEl) || new bootstrap.Collapse(collapseEl, { toggle: false });
+                bsCollapse.hide();
+            }
         });
     </script>
 </body>
