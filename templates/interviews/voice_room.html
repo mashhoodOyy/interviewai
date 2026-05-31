@@ -55,6 +55,18 @@
                     <small class="text-muted">Your answer:</small>
                     <p id="liveTranscript" class="mb-0 mt-2"></p>
                 </div>
+                <div id="voiceSupportError" class="alert alert-danger d-none mt-3" role="alert"></div>
+                <div id="voiceFallback" class="card glass-card p-3 mb-3 d-none">
+                    <div class="mb-3">
+                        <p class="fw-bold mb-2">Manual answer fallback</p>
+                        <p class="text-muted mb-0">If your browser does not support voice input, you can type your answer below instead.</p>
+                    </div>
+                    <textarea id="manualAnswerInput" class="form-control mb-3" rows="4" placeholder="Type your answer here..."></textarea>
+                    <div class="d-flex gap-2 flex-column flex-sm-row">
+                        <button id="manualSubmitBtn" class="btn btn-primary w-100 w-sm-auto" onclick="submitManualAnswer()">Submit text answer</button>
+                        <button id="copyUrlBtn" class="btn btn-outline-secondary w-100 w-sm-auto" onclick="copyInterviewUrl()">Copy page URL</button>
+                    </div>
+                </div>
             </div>
 
             <div class="d-grid gap-3 d-sm-flex justify-content-center">
@@ -128,6 +140,13 @@
     let currentTranscript = '';
     let isListening = false;
     let isSpeaking = false;
+    let microphonePermissionGranted = false;
+    let shouldAutoRestartRecognition = true;
+
+    const isMobileDevice = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const isSpeechRecognitionSupported = !!SpeechRecognitionConstructor;
+    const hasMicrophoneSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
     const timerEl = document.getElementById('timer');
     setInterval(() => {
@@ -161,16 +180,17 @@
     }
 
     function startListening() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert('Speech recognition not supported. Please use Google Chrome.');
+        if (!isSpeechRecognitionSupported) {
+            showUnsupportedBrowserMessage();
             return;
         }
 
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
+        recognition = new SpeechRecognitionConstructor();
+        recognition.continuous = !isMobileDevice;
+        recognition.interimResults = !isMobileDevice;
         recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+        shouldAutoRestartRecognition = true;
 
         currentTranscript = '';
         document.getElementById('transcriptBox').classList.remove('d-none');
@@ -199,12 +219,24 @@
                 if (currentTranscript.trim().length > 10) {
                     submitAnswer();
                 }
-            }, 2000);
+            }, isMobileDevice ? 3000 : 2000);
         };
 
         recognition.onerror = (e) => {
-            if (e.error !== 'no-speech') {
+            if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+                shouldAutoRestartRecognition = false;
+                showErrorMessage('Microphone permission denied. Please allow microphone access or use the manual text fallback.');
+            } else if (e.error !== 'no-speech') {
                 console.error('Speech error:', e.error);
+            }
+        };
+
+        recognition.onend = () => {
+            if (shouldAutoRestartRecognition && !isPaused && !isSpeaking) {
+                startListening();
+            } else {
+                isListening = false;
+                document.getElementById('micIcon').classList.remove('mic-active');
             }
         };
 
@@ -212,6 +244,7 @@
     }
 
     function stopListening() {
+        shouldAutoRestartRecognition = false;
         if (recognition) {
             recognition.stop();
             recognition = null;
@@ -219,6 +252,118 @@
         clearTimeout(silenceTimer);
         document.getElementById('micIcon').classList.remove('mic-active');
         isListening = false;
+    }
+
+    function showErrorMessage(message) {
+        const errorBox = document.getElementById('voiceSupportError');
+        const fallback = document.getElementById('voiceFallback');
+        if (errorBox) {
+            errorBox.textContent = message;
+            errorBox.classList.remove('d-none');
+        }
+        if (fallback) {
+            fallback.classList.remove('d-none');
+        }
+        document.getElementById('listeningStatus').textContent = message;
+        document.getElementById('micIcon').textContent = '⚠️';
+    }
+
+    function hideErrorMessage() {
+        const errorBox = document.getElementById('voiceSupportError');
+        if (errorBox) {
+            errorBox.textContent = '';
+            errorBox.classList.add('d-none');
+        }
+    }
+
+    function showUnsupportedBrowserMessage() {
+        showErrorMessage('Voice interview requires Google Chrome browser. Please open this page in Chrome to use voice interview.');
+    }
+
+    function requestMicrophonePermission() {
+        if (!hasMicrophoneSupport) {
+            showErrorMessage('Microphone access is unavailable in this browser. Use the manual fallback to continue.');
+            return Promise.reject(new Error('No microphone support'));
+        }
+
+        showStatusMessage('Requesting microphone permission...');
+        return navigator.mediaDevices.getUserMedia({ audio: true })
+            .then((stream) => {
+                stream.getTracks().forEach((track) => track.stop());
+                microphonePermissionGranted = true;
+                showStatusMessage('Microphone access granted.');
+                hideErrorMessage();
+            })
+            .catch((error) => {
+                if (error && error.name === 'NotAllowedError') {
+                    showErrorMessage('Microphone permission denied. Please allow microphone access or use the manual text fallback.');
+                } else {
+                    showErrorMessage('Unable to access microphone. Please check your settings or use the manual text fallback.');
+                }
+                return Promise.reject(error);
+            });
+    }
+
+    function showStatusMessage(message) {
+        const status = document.getElementById('listeningStatus');
+        if (status) {
+            status.textContent = message;
+        }
+    }
+
+    function prepareListening(callback) {
+        if (!isSpeechRecognitionSupported) {
+            showUnsupportedBrowserMessage();
+            return;
+        }
+        if (!hasMicrophoneSupport) {
+            showErrorMessage('Microphone access is unavailable in this browser. Use the manual text fallback to continue.');
+            return;
+        }
+        if (!microphonePermissionGranted) {
+            showStatusMessage('Allow microphone access to continue.');
+            requestMicrophonePermission()
+                .then(() => {
+                    if (!isPaused && callback) callback();
+                })
+                .catch(() => {
+                    /* permission denied or unavailable */
+                });
+            return;
+        }
+        if (callback) callback();
+    }
+
+    function submitManualAnswer() {
+        const manualInput = document.getElementById('manualAnswerInput');
+        if (!manualInput) return;
+        const answer = manualInput.value.trim();
+        if (!answer) {
+            showErrorMessage('Please type an answer before submitting.');
+            return;
+        }
+        manualInput.value = '';
+        currentTranscript = answer;
+        document.getElementById('liveTranscript').textContent = answer;
+        submitAnswer();
+    }
+
+    function copyInterviewUrl() {
+        if (!navigator.clipboard) {
+            alert('Copying is not supported in this browser. Please copy the URL manually.');
+            return;
+        }
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const button = document.getElementById('copyUrlBtn');
+            if (button) {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    if (button) button.textContent = 'Copy page URL';
+                }, 2000);
+            }
+        }).catch(() => {
+            alert('Unable to copy the URL. Please copy it manually.');
+        });
     }
 
     function submitAnswer() {
@@ -258,7 +403,7 @@
         currentTranscript = '';
 
         speak(q.text, () => {
-            if (!isPaused) startListening();
+            if (!isPaused) prepareListening(() => startListening());
         });
     }
 
@@ -353,7 +498,7 @@
             document.getElementById('listeningStatus').textContent = 'Interview paused';
         } else {
             window.speechSynthesis.resume();
-            if (!isSpeaking) startListening();
+            if (!isSpeaking) prepareListening(() => startListening());
         }
     }
 
@@ -368,6 +513,10 @@
     }
 
     window.onload = () => {
+        if (!isSpeechRecognitionSupported) {
+            showUnsupportedBrowserMessage();
+        }
+
         setTimeout(() => {
             speak("Hello! Welcome to your AI voice interview. I will ask you 6 questions. Please speak clearly and naturally. Let's begin!", () => {
                 askNextQuestion();
